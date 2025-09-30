@@ -7,15 +7,14 @@ const utils = @import("utils.zig");
 const Token = @import("token.zig").Token;
 
 pub const Validator = struct {
-    token: Token,
+    token: *Token,
     claims: json.Parsed(json.Value),
     leeway: i64 = 0,
 
     const Self = @This();
 
-    pub fn init(token: Token) !Self {
-        var valid_token = token;
-        const claims = try valid_token.getClaims();
+    pub fn init(token: *Token) !Self {
+        const claims = try token.getClaims();
 
         return .{
             .token = token,
@@ -155,7 +154,7 @@ test "Validator isExpired" {
     var token = Token.init(alloc);
     token.parse(check1);
 
-    var validator = try Validator.init(token);
+    var validator = try Validator.init(&token);
     defer validator.deinit();
 
     const isExpired = validator.isExpired(now);
@@ -177,7 +176,7 @@ test "Validator isMinimumTimeBefore" {
     var token = Token.init(alloc);
     token.parse(check1);
 
-    var validator = try Validator.init(token);
+    var validator = try Validator.init(&token);
     defer validator.deinit();
 
     const isMinimumTimeBefore = validator.isMinimumTimeBefore(now);
@@ -197,7 +196,7 @@ test "Validator" {
     var token = Token.init(alloc);
     token.parse(check1);
 
-    var validator = try Validator.init(token);
+    var validator = try Validator.init(&token);
     defer validator.deinit();
 
     try testing.expectEqual(true, validator.hasBeenIssuedBy("iss"));
@@ -224,7 +223,7 @@ test "Validator" {
     var token2 = Token.init(alloc);
     token2.parse(check1);
 
-    var validator2 = try Validator.init(token2);
+    var validator2 = try Validator.init(&token2);
     defer validator2.deinit();
 
     validator2.withLeeway(3);

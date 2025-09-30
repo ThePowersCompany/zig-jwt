@@ -1,5 +1,4 @@
 const std = @import("std");
-const fmt = std.fmt;
 const testing = std.testing;
 const Allocator = std.mem.Allocator;
 
